@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório Semanal Financeiro e Operacional - Cab-Ração</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Light Theme Color Palette */
+            --bg-gradient-start: #f8fafc; /* slate-50 */
+            --bg-gradient-end: #eef2f7;   /* custom lighter slate */
+            --card-bg: rgba(255, 255, 255, 0.85); /* white with opacity */
+            --card-bg-hover: rgba(248, 250, 252, 0.95); /* slate-50 with more opacity */
+            --card-border: rgba(203, 213, 225, 0.6); /* slate-300 */
+            --section-border: rgba(226, 232, 240, 0.8); /* slate-200 */
+
+            /* Accent Colors (Kept vibrant) */
+            --accent-primary: #0ea5e9;   /* sky-500 */
+            --accent-secondary: #f59e0b; /* amber-500 */
+            --accent-tertiary: #10b981;  /* emerald-500 */
+            --accent-quaternary: #8b5cf6;/* violet-500 */
+            --accent-critical: #ef4444;  /* red-500 */
+
+            /* Text Colors (Dark for contrast on light background) */
+            --text-primary: #1e293b;    /* slate-800 */
+            --text-secondary: #475569;  /* slate-600 */
+            --text-muted: #94a3b8;      /* slate-400 */
+            --text-accent: #0284c7;     /* sky-600 (darker accent for text) */
+            --text-warning: #d97706;    /* amber-600 */
+            --text-success: #059669;    /* emerald-600 */
+            --text-critical: #dc2626;   /* red-600 */
+
+            /* Chart Colors */
+            --chart-bg: rgba(248, 250, 252, 0.7); /* slate-50 with opacity */
+            --chart-grid: rgba(203, 213, 225, 0.5); /* slate-300 */
+        }
+
+        /* Base body styling */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(145deg, var(--bg-gradient-start), var(--bg-gradient-end));
+            color: var(--text-primary);
+            line-height: 1.65;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Heading styling */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Montserrat', sans-serif;
+            letter-spacing: -0.02em;
+            font-weight: 600;
+            color: var(--text-primary); /* Ensure headings use primary text color */
+        }
+        h1 { font-weight: 800; }
+        h2 { font-weight: 700; }
+        h2.text-white { color: var(--text-primary) !important; } /* Override specific text-white for section titles */
+
+
+        /* Main report container styling */
+        .report-container {
+            max-width: 1280px;
+            margin: 3rem auto;
+            padding: 3rem;
+            background: rgba(255, 255, 255, 0.9); /* Lighter background for the container */
+            backdrop-filter: blur(10px) saturate(120%);
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 40px -15px rgba(100, 116, 139, 0.2); /* Softer shadow for light theme */
+            border: 1px solid var(--card-border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Top gradient border (remains vibrant) */
+        .report-container::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary), var(--accent-tertiary), var(--accent-quaternary));
+            z-index: 1;
+            opacity: 0.9;
+        }
+
+        /* Enhanced glass card styling for light theme */
+        .glass-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 1rem;
+            padding: 1.75rem;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 12px -4px rgba(100, 116, 139, 0.1), 0 4px 6px -3px rgba(100, 116, 139, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card:hover {
+            background: var(--card-bg-hover);
+            box-shadow: 0 15px 25px -8px rgba(100, 116, 139, 0.15), 0 8px 10px -6px rgba(100, 116, 139, 0.08);
+            transform: translateY(-3px) scale(1.01);
+            border-color: rgba(14, 165, 233, 0.5); /* Brighter accent border on hover */
+        }
+
+        /* Subtle top highlight for cards */
+        .glass-card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+            opacity: 0.3; /* Adjusted opacity for light theme */
+            transition: opacity 0.3s ease;
+        }
+        .glass-card:hover::after {
+            opacity: 0.6;
+        }
+
+        /* Metric card specific styling */
+        .metric-card {
+            text-align: center;
+        }
+        .metric-card h3 { color: var(--text-accent); } /* Ensure metric card title uses text-accent */
+        .metric-card .text-\[var\(--text-secondary\)\] { color: var(--text-secondary) !important; } /* Ensure secondary text is applied */
+
+
+        /* Metric value styling (gradient text remains) */
+        .metric-value {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin: 0.75rem 0;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-tertiary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+        }
+        /* Currency symbol styling */
+        .currency::before {
+            content: "AOA ";
+            font-size: 0.7em;
+            opacity: 0.7;
+            font-weight: 500;
+            margin-right: 0.1em;
+            vertical-align: baseline;
+            color: var(--text-secondary); /* Ensure currency symbol has contrast */
+        }
+        .currency-value {
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Chart container styling */
+        .chart-container {
+            position: relative;
+            height: 380px;
+            width: 100%;
+            margin-bottom: 1rem;
+            padding: 1.5rem;
+            background: var(--chart-bg);
+            border-radius: 0.75rem;
+            border: 1px solid var(--section-border);
+        }
+
+        /* Table styling refinements */
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 1.5rem;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(100, 116, 139, 0.1), 0 2px 4px -1px rgba(100, 116, 139, 0.06);
+        }
+
+        .data-table th, .data-table td {
+            padding: 1rem 1.25rem;
+            text-align: left;
+            border-bottom: 1px solid var(--section-border); /* Use section border for table rows */
+            vertical-align: middle;
+            color: var(--text-secondary); /* Default text color for table cells */
+        }
+
+        .data-table th {
+            font-weight: 600;
+            background: rgba(226, 232, 240, 0.6); /* slate-200 with opacity */
+            color: var(--text-accent);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.06em;
+        }
+
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tr:nth-child(odd) td { background: rgba(248, 250, 252, 0.4); /* slate-50 with opacity */ }
+        .data-table tr:nth-child(even) td { background: rgba(255, 255, 255, 0.2); /* very light or transparent */ }
+        .data-table tr:hover td { background: rgba(226, 232, 240, 0.7); /* slate-200 for hover */ }
+
+        .data-table td.numeric, .data-table th.numeric { text-align: right; }
+        .low-stock { color: var(--text-warning); font-weight: 600; }
+        .out-of-stock { color: var(--text-critical); font-weight: 700; text-transform: uppercase; }
+
+        /* Timeline (Day Section) styling */
+        .day-section {
+            position: relative;
+            padding-left: 2.5rem;
+            margin-bottom: 3rem;
+            border-left: 3px solid rgba(14, 165, 233, 0.25); /* Lighter accent line */
+        }
+        .day-section::before {
+            content: "";
+            position: absolute;
+            top: 2px;
+            left: -10px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            border: 3px solid var(--bg-gradient-start); /* Use light bg for border */
+            box-shadow: 0 0 12px rgba(14, 165, 233, 0.4);
+        }
+        .day-section.no-activity::before {
+            background: var(--text-muted);
+            box-shadow: none;
+            border-color: var(--bg-gradient-start);
+        }
+        .day-section.active-day::before {
+            background: var(--accent-tertiary);
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+        }
+        .day-section h3 { color: var(--text-accent); } /* Day section title color */
+
+        /* Ops Section styling (within Day Section) */
+        .ops-section {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 1.5rem;
+            border-left: 1px dashed rgba(14, 165, 233, 0.3); /* Lighter dashed line */
+        }
+        .ops-section::before {
+            content: "";
+            position: absolute;
+            top: 8px;
+            left: -5px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent-secondary);
+            border: 2px solid var(--card-bg); /* Match light card background */
+        }
+        .ops-section h4 {
+            font-weight: 600;
+            color: var(--text-accent);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .ops-section h4 i { color: var(--accent-primary); }
+        .ops-section p, .ops-section ul li { color: var(--text-secondary); } /* Text color for ops details */
+        .ops-section strong { color: var(--text-primary); } /* Emphasized text in ops */
+
+
+        /* Note box styling */
+        .note-box {
+            background: rgba(226, 232, 240, 0.5); /* slate-200 with opacity */
+            border-radius: 0.5rem;
+            padding: 1.25rem;
+            margin-top: 1rem;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(203, 213, 225, 0.4); /* Lighter border */
+        }
+        .note-box::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; bottom: 0;
+            width: 5px;
+        }
+        .note-box.warning::before { background: var(--accent-secondary); }
+        .note-box.critical::before { background: var(--accent-critical); }
+        .note-box.info::before { background: var(--accent-primary); }
+        .note-box p { color: var(--text-secondary); }
+        .note-box .font-semibold { color: var(--text-primary); }
+        .note-box .text-white { color: var(--text-primary) !important; }
+
+
+        /* Pulse animation for critical items */
+        @keyframes pulseBorder {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } /* --accent-critical (red-500) */
+            70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+        }
+        .pulse-critical {
+            animation: pulseBorder 2.5s infinite;
+            border-color: var(--accent-critical) !important;
+        }
+
+        /* Progress bar styling */
+        .progress-bar-container {
+            height: 10px;
+            background: rgba(203, 213, 225, 0.5); /* slate-300 with opacity */
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 8px 0;
+            border: 1px solid rgba(226, 232, 240, 0.3); /* Lighter border */
+        }
+        .progress-bar {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.6s ease-out;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); /* Softer inner shadow */
+        }
+        .progress-bar.danger { background: linear-gradient(90deg, #f87171, #ef4444); }
+        .progress-bar.warning { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+        .progress-bar.good { background: linear-gradient(90deg, #34d399, #10b981); }
+
+        /* Status indicators */
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        .status-indicator.critical { background-color: var(--accent-critical); box-shadow: 0 0 8px rgba(239, 68, 68, 0.5); }
+        .status-indicator.warning { background-color: var(--accent-secondary); box-shadow: 0 0 8px rgba(245, 158, 11, 0.5); }
+        .status-indicator.normal { background-color: var(--accent-tertiary); box-shadow: 0 0 8px rgba(16, 185, 129, 0.5); }
+
+        /* Summary card specific styling */
+        .summary-card {
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(100, 116, 139, 0.1); /* Softer shadow */
+            border-left: 5px solid var(--accent-primary);
+            padding-left: 2rem;
+        }
+        .summary-card.warning { border-left-color: var(--accent-secondary); }
+        .summary-card.critical { border-left-color: var(--accent-critical); }
+        .summary-card p, .summary-card strong { color: var(--text-secondary); }
+        .summary-card strong.text-\[var\(--text-warning\)\] { color: var(--text-warning) !important; }
+        .summary-card strong.text-white { color: var(--text-primary) !important; }
+
+
+        /* Utility class for icon alignment */
+        .icon-text-center {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+
+        /* Tailwind text color overrides for light theme */
+        .text-sky-300 { color: #0ea5e9; } /* sky-500 */
+        .text-amber-300 { color: #f59e0b; } /* amber-500 */
+        .text-emerald-300 { color: #10b981; } /* emerald-500 */
+        .text-slate-300 { color: #cbd5e1; } /* slate-300, for specific cases if needed, else use vars */
+
+
+        /* Print styles (largely unchanged, already light-themed) */
+        @media print {
+            :root { /* Reset colors for print */
+                --bg-gradient-start: #ffffff;
+                --bg-gradient-end: #ffffff;
+                --card-bg: #f9fafb;
+                --card-bg-hover: #f9fafb;
+                --card-border: #e5e7eb;
+                --section-border: #e5e7eb;
+                --accent-primary: #2563eb;
+                --accent-secondary: #d97706;
+                --accent-tertiary: #059669;
+                --accent-critical: #dc2626;
+                --text-primary: #111827;
+                --text-secondary: #374151;
+                --text-muted: #6b7280;
+                --text-accent: #1d4ed8;
+                --text-warning: #b45309;
+                --text-success: #047857;
+                --text-critical: #b91c1c;
+                --chart-bg: #f9fafb;
+                --chart-grid: #e5e7eb;
+            }
+            body {
+                background: white;
+                color: #1f2937;
+                font-size: 10pt;
+                line-height: 1.4;
+            }
+            .report-container {
+                margin: 0;
+                padding: 1rem;
+                background: white;
+                box-shadow: none;
+                border: none;
+                max-width: 100%;
+                backdrop-filter: none;
+            }
+            .report-container::before { display: none; }
+            .glass-card {
+                background: #f9fafb;
+                border: 1px solid #e5e7eb;
+                box-shadow: none;
+                padding: 1rem;
+                border-radius: 0.5rem;
+            }
+            .glass-card::after { display: none; }
+            .chart-container {
+                background: #f9fafb;
+                border: 1px solid #e5e7eb;
+                padding: 0.5rem;
+                height: 250px;
+            }
+            .day-section { border-left-color: #d1d5db; padding-left: 1.5rem; margin-bottom: 1.5rem; }
+            .day-section::before { width: 12px; height: 12px; left: -7px; border-width: 2px; }
+            h1, h2, h3, h4, h5, h6, p, span, td, th, li { color: #1f2937 !important; }
+            .metric-value { background: none; color: #1f2937 !important; font-size: 1.5rem; }
+            .currency::before { color: #4b5563; }
+            .data-table { font-size: 9pt; }
+            .data-table th, .data-table td { padding: 0.5rem 0.75rem; }
+            .data-table th { background: #f3f4f6; color: #1f2937; }
+            .data-table tr:nth-child(odd) td { background: #f9fafb; }
+            .data-table tr:nth-child(even) td { background: #fff; }
+            .out-of-stock { color: #b91c1c; }
+            .low-stock { color: #b45309; }
+            .progress-bar, .status-indicator { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+            .progress-bar.danger { background: #ef4444; }
+            .progress-bar.warning { background: #f59e0b; }
+            .progress-bar.good { background: #10b981; }
+            .note-box { background: #f3f4f6; border-left-width: 3px; padding: 0.75rem; }
+            .note-box::before { width: 3px; }
+            .note-box.warning::before { background: #f59e0b; }
+            .note-box.critical::before { background: #ef4444; }
+            .note-box.info::before { background: #3b82f6; }
+            img { max-height: 40px; }
+            button, .no-print { display: none; }
+            section { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <main class="report-container">
+        <header class="flex flex-col md:flex-row justify-between items-center mb-10 pb-6 border-b border-[var(--section-border)]">
+            <div class="mb-6 md:mb-0 text-center md:text-left">
+                <div class="inline-flex items-center gap-3 mb-2">
+                    <div class="h-8 w-1.5 bg-[var(--accent-primary)] rounded-full"></div>
+                    <h1 class="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-[var(--accent-primary)] to-cyan-400">
+                        Relatório Semanal
+                    </h1>
+                </div>
+                <h2 class="text-xl text-[var(--text-secondary)] font-medium ml-[1.125rem]">Operações & Finanças Cab-Ração</h2>
+                <p class="text-sm text-[var(--text-muted)] mt-3 ml-[1.125rem] icon-text-center">
+                    <i class="fa-solid fa-calendar-week text-[var(--accent-primary)] opacity-80"></i>
+                    <span>5 a 9 de Maio, 2025</span>
+                </p>
+            </div>
+            <div class="flex flex-col items-center md:items-end">
+                <img src="https://grupoysam.com/wp-content/uploads/2025/05/cab-racao-1.webp"
+                     alt="Logótipo Cab-Ração"
+                     class="h-16 mb-3 object-contain"
+                     onerror="this.onerror=null; this.src='https://placehold.co/150x64/e2e8f0/475569?text=Cab-Ração&font=montserrat'; this.classList.add('p-2', 'border', 'border-dashed', 'border-slate-400');">
+                <div class="text-sm text-[var(--text-accent)] icon-text-center">
+                    <i class="fa-solid fa-user-pen opacity-80"></i>
+                    <span>Compilado por: Almeida José</span>
+                </div>
+            </div>
+        </header>
+
+        <section class="mb-12">
+            <div class="flex items-center gap-3 mb-6">
+                <i class="fa-solid fa-clipboard-list text-[var(--accent-primary)] text-2xl w-6 text-center"></i>
+                <h2 class="text-2xl font-semibold text-[var(--text-primary)]">Resumo Executivo</h2>
+            </div>
+            <div class="glass-card summary-card critical">
+                <div class="space-y-4 text-[var(--text-secondary)]">
+                    <p>Este relatório consolida as atividades operacionais e financeiras da Cab-Ração para a semana de 5 a 9 de Maio de 2025. A receita total de vendas atingiu <strong class="text-[var(--text-warning)] currency"><span class="currency-value">430.850,00</span></strong>, proveniente exclusivamente das vendas de Terça e Quarta-feira.</p>
+
+                    <div class="flex items-start gap-3 pt-2">
+                        <div class="status-indicator critical mt-1 flex-shrink-0"></div>
+                        <p>A produção esteve <strong class="text-[var(--text-primary)]">severamente limitada</strong>, ocorrendo apenas na Terça-feira para satisfazer uma encomenda, devido à <strong class="text-[var(--text-warning)]">rutura de stock das matérias-primas essenciais Trigo e Milho</strong>. Esta situação impediu qualquer produção adicional durante a semana.</p>
+                    </div>
+
+                    <div class="flex items-start gap-3">
+                        <div class="status-indicator warning mt-1 flex-shrink-0"></div>
+                        <p>O stock de produto acabado fixou-se em 7 sacos (A101/A103 combinados). Outras matérias-primas também apresentam níveis baixos. O problema do abastecimento de água permanece por resolver.</p>
+                    </div>
+
+                    <div class="note-box critical mt-6 pulse-critical">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-triangle-exclamation text-[var(--text-critical)] text-lg"></i>
+                            <p class="font-semibold text-[var(--text-primary)]">A prioridade absoluta para a próxima semana é a aquisição urgente de Trigo e Milho para normalizar a produção e responder à potencial procura.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-14">
+            <div class="flex items-center gap-3 mb-6">
+                <i class="fa-solid fa-sack-dollar text-[var(--accent-primary)] text-2xl w-6 text-center"></i>
+                <h2 class="text-2xl font-semibold text-[var(--text-primary)]">Painel Financeiro e de Vendas</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                <div class="glass-card metric-card">
+                    <div class="absolute top-4 right-4 text-[var(--accent-primary)] opacity-20">
+                        <i class="fa-solid fa-coins text-4xl"></i>
+                    </div>
+                    <h3 class="text-sm uppercase tracking-wider font-medium mb-1">Receita Total da Semana</h3>
+                    <p class="metric-value currency"><span class="currency-value" id="totalRevenue">0,00</span></p>
+                    <div class="mt-3 text-xs text-[var(--text-secondary)] icon-text-center justify-center">
+                        <i class="fa-solid fa-calendar-day opacity-70"></i>
+                        <span>2 dias com receita</span>
+                    </div>
+                </div>
+
+                <div class="glass-card metric-card">
+                    <div class="absolute top-4 right-4 text-[var(--accent-secondary)] opacity-20">
+                        <i class="fa-solid fa-boxes-stacked text-4xl"></i>
+                    </div>
+                    <h3 class="text-sm uppercase tracking-wider font-medium mb-1">Total de Sacos Vendidos</h3>
+                    <p class="metric-value" id="totalUnitsSold">0</p>
+                    <div class="mt-3 flex justify-center text-xs gap-3">
+                        <div class="px-3 py-1 rounded-full bg-sky-100 text-sky-700 font-medium">
+                            11 × A103
+                        </div>
+                        <div class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 font-medium">
+                            10 × A101
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card metric-card">
+                    <div class="absolute top-4 right-4 text-[var(--accent-tertiary)] opacity-20">
+                        <i class="fa-solid fa-chart-line text-4xl"></i>
+                    </div>
+                    <h3 class="text-sm uppercase tracking-wider font-medium mb-1">Dias com Vendas</h3>
+                    <p class="metric-value">2 / 5</p>
+                    <div class="mt-3 px-2">
+                        <div class="progress-bar-container">
+                            <div class="progress-bar warning" style="width: 40%;"></div>
+                        </div>
+                        <div class="flex justify-between text-xs text-[var(--text-secondary)] mt-1">
+                            <span>Terça</span>
+                            <span>Quarta</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="glass-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-[var(--text-accent)] icon-text-center">
+                            <i class="fa-solid fa-chart-column mr-1"></i>Receita Diária
+                        </h3>
+                        <span class="text-xs text-sky-700 bg-sky-100 px-3 py-1 rounded-full font-medium">AOA</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="dailyRevenueChart" role="img" aria-label="Gráfico de barras mostrando a receita diária em AOA"></canvas>
+                    </div>
+                </div>
+
+                <div class="glass-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-[var(--text-accent)] icon-text-center">
+                            <i class="fa-solid fa-chart-pie mr-1"></i>Vendas por Produto
+                        </h3>
+                        <span class="text-xs text-sky-700 bg-sky-100 px-3 py-1 rounded-full font-medium">Sacos</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="productSalesChart" role="img" aria-label="Gráfico circular mostrando a distribuição de sacos vendidos por tipo de produto"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-14">
+            <div class="flex items-center gap-3 mb-6">
+                <i class="fa-solid fa-warehouse text-[var(--accent-primary)] text-2xl w-6 text-center"></i>
+                <h2 class="text-2xl font-semibold text-[var(--text-primary)]">Estado do Inventário</h2>
+                <span class="ml-2 text-xs bg-sky-100 text-sky-700 px-3 py-1 rounded-full font-medium">Fim de Semana</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="glass-card">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-5">
+                        <h3 class="text-lg font-semibold text-[var(--text-accent)] icon-text-center">
+                            <i class="fa-solid fa-wheat-awn text-[var(--text-warning)]"></i>Matérias-Primas
+                        </h3>
+                        <div class="flex items-center gap-3 text-xs">
+                            <div class="icon-text-center">
+                                <div class="status-indicator critical"></div><span class="text-[var(--text-critical)]">Crítico</span>
+                            </div>
+                            <div class="icon-text-center">
+                                <div class="status-indicator warning"></div><span class="text-[var(--text-warning)]">Baixo</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-5">
+                        <div>
+                            <div class="flex justify-between items-center text-sm mb-1">
+                                <span class="text-[var(--text-secondary)]">Farelo de Milho</span>
+                                <div class="flex items-center font-medium">
+                                    <span class="text-[var(--text-warning)] mr-2">3 sacos</span>
+                                    <div class="status-indicator warning"></div>
+                                </div>
+                            </div>
+                            <div class="progress-bar-container"><div class="progress-bar warning" style="width: 30%;"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center text-sm mb-1">
+                                <span class="text-[var(--text-secondary)]">Soja</span>
+                                <div class="flex items-center font-medium">
+                                    <span class="text-[var(--text-warning)] mr-2">3 sacos</span>
+                                    <div class="status-indicator warning"></div>
+                                </div>
+                            </div>
+                            <div class="progress-bar-container"><div class="progress-bar warning" style="width: 30%;"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center text-sm mb-1">
+                                <span class="text-[var(--text-secondary)]">Cálcio</span>
+                                <div class="flex items-center font-medium">
+                                    <span class="text-[var(--text-warning)] mr-2">1.5 un.</span>
+                                    <div class="status-indicator warning"></div>
+                                </div>
+                            </div>
+                            <div class="progress-bar-container"><div class="progress-bar warning" style="width: 15%;"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center text-sm mb-1">
+                                <span class="text-[var(--text-secondary)]">Concentrado</span>
+                                <div class="flex items-center font-medium">
+                                    <span class="text-[var(--text-warning)] mr-2">1.5 un.</span>
+                                    <div class="status-indicator warning"></div>
+                                </div>
+                            </div>
+                            <div class="progress-bar-container"><div class="progress-bar warning" style="width: 15%;"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center text-sm mb-1">
+                                <span class="text-[var(--text-secondary)]">Trigo</span>
+                                <div class="flex items-center font-bold">
+                                    <span class="text-[var(--text-critical)] mr-2">0 sacos</span>
+                                    <div class="status-indicator critical"></div>
+                                </div>
+                            </div>
+                            <div class="progress-bar-container"><div class="progress-bar danger" style="width: 0%;"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center text-sm mb-1">
+                                <span class="text-[var(--text-secondary)]">Milho</span>
+                                <div class="flex items-center font-bold">
+                                    <span class="text-[var(--text-critical)] mr-2">0 sacos</span>
+                                    <div class="status-indicator critical"></div>
+                                </div>
+                            </div>
+                            <div class="progress-bar-container"><div class="progress-bar danger" style="width: 0%;"></div></div>
+                        </div>
+                    </div>
+
+                    <div class="note-box critical mt-6">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-triangle-exclamation text-[var(--text-critical)] text-lg"></i>
+                            <p class="font-semibold text-[var(--text-primary)]">Produção parada devido à falta de Trigo e Milho.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card">
+                    <div class="flex items-center mb-5">
+                        <h3 class="text-lg font-semibold text-[var(--text-accent)] icon-text-center">
+                            <i class="fa-solid fa-box-open text-[var(--accent-primary)]"></i>Produtos Acabados
+                        </h3>
+                    </div>
+
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center text-sm mb-1">
+                            <span class="text-[var(--text-secondary)]">Stock Total de Ração</span>
+                            <div class="flex items-center font-medium">
+                                <span class="text-[var(--text-warning)] mr-2">7 sacos</span>
+                                <div class="status-indicator warning"></div>
+                            </div>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar warning" style="width: 35%;"></div> </div>
+                        <p class="text-xs text-[var(--text-muted)] mt-2">Nível de stock abaixo do recomendado (meta: 20 sacos)</p>
+                    </div>
+
+                    <div class="bg-slate-100 rounded-lg p-4 mb-6 border border-slate-200">
+                        <h4 class="text-sm font-medium text-[var(--text-accent)] mb-3">Distribuição Estimada em Stock</h4>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="icon-text-center text-sm">
+                                <div class="w-3 h-3 rounded-full bg-[var(--accent-primary)] ring-2 ring-offset-2 ring-offset-slate-100 ring-[var(--accent-primary)]/50"></div>
+                                <span class="text-[var(--text-secondary)]">A103</span>
+                            </div>
+                            <div class="icon-text-center text-sm">
+                                <div class="w-3 h-3 rounded-full bg-[var(--accent-secondary)] ring-2 ring-offset-2 ring-offset-slate-100 ring-[var(--accent-secondary)]/50"></div>
+                                <span class="text-[var(--text-secondary)]">A101</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="note-box info">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-circle-info text-[var(--accent-primary)] text-lg"></i>
+                            <p class="text-[var(--text-secondary)] text-sm">Níveis de inventário refletem o estado após a produção e vendas de Terça-feira.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-14">
+            <div class="flex items-center gap-3 mb-8">
+                <i class="fa-solid fa-timeline text-[var(--accent-primary)] text-2xl w-6 text-center"></i>
+                <h2 class="text-2xl font-semibold text-[var(--text-primary)]">Registo Operacional Diário</h2>
+            </div>
+
+            <div class="day-section no-activity">
+                <div class="flex flex-wrap justify-between items-center gap-2 mb-4">
+                    <h3 class="text-xl font-medium">Segunda-feira, 5 de Maio</h3>
+                    <span class="bg-slate-200 text-xs px-3 py-1 rounded-full text-slate-600 font-medium">Dia 1 - Sem Atividade Principal</span>
+                </div>
+                <div class="glass-card space-y-5">
+                    <div class="ops-section">
+                        <h4><i class="fa-solid fa-industry"></i>Produção</h4>
+                        <p>Não houve produção.</p>
+                    </div>
+                    <div class="ops-section">
+                        <h4><i class="fa-solid fa-cash-register"></i>Vendas</h4>
+                        <p>Sem vendas reportadas (<span class="currency"><span class="currency-value">0,00</span></span>).</p>
+                    </div>
+                    <div class="ops-section">
+                        <h4><i class="fa-solid fa-screwdriver-wrench"></i>Operações</h4>
+                        <ul class="list-disc list-outside ml-5 space-y-1">
+                            <li>Início dos trabalhos de capina no recinto. Conclusão prevista para Terça-feira.</li>
+                            <li>Pagamento do serviço pendente efetuado.</li>
+                        </ul>
+                    </div>
+                    <div class="ops-section">
+                        <h4><i class="fa-solid fa-clipboard"></i>Notas</h4>
+                        <div class="note-box warning">
+                            <p class="icon-text-center"><i class="fa-solid fa-faucet-drip text-[var(--text-warning)]"></i>Problema do abastecimento de água por resolver.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="day-section active-day">
+                <div class="flex flex-wrap justify-between items-center gap-2 mb-4">
+                    <h3 class="text-xl font-medium">Terça-feira, 6 de Maio</h3>
+                    <span class="bg-emerald-100 text-xs px-3 py-1 rounded-full text-emerald-700 font-medium icon-text-center"><i class="fa-solid fa-check"></i>Dia Ativo</span>
+                </div>
+                <div class="glass-card space-y-5">
+                    <div class="ops-section">
+                        <h4><i class="fa-solid fa-industry"></i>Produção</h4>
+                        <p>Produção parcial realizada para completar encomenda (<strong>única produção da semana</strong>).</p>
+                    </div>
+                    <div class="ops-section">
+                        <h4><i class="fa-solid fa-cash-register"></i>Vendas</h4>
+                        <div class="bg-slate-100 border border-slate-200 rounded-lg p-4 my-3">
+                            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                                <div class="icon-text-center text-[var(--text-secondary)]">
+                                    <i class="fa-solid fa-user text-sky-500"></i>
+                                    <span>Apolónia Complexus</span>
+                                </div>
+                                <span class="currency text-sky-600 font-semibold text-lg"><span class="currency-value">411.200,00</span></span>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                                <div class="flex items-center justify-between bg-slate-200/70 p-2 rounded">
+                                    <span class="text-sky-600">10 sacos A103</span>
+                                    <span class="text-xs currency text-sky-500/80"><span class="currency-value">196.500,00</span></span>
+                                </div>
+                                <div class="flex items-center justify-between bg-slate-200/70 p-2 rounded">
+                                    <span class="text-amber-600">10 sacos A101</span>
+                                    <span class="text-xs currency text-amber-500/80"><span class="currency-value">214.700,00</span></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="inline-block bg-gradient-to-r from-sky-500 to-cyan-500 px-4 py-1.5 rounded-md shadow">
+                                <span class="text-sm font-medium text-white">Receita do Dia: </span>
+                                <span class="currency font-semibold text-white"><span class="currency-value">411.200,00</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ops-section">
+                        <h4><i class="fa-solid fa-boxes-stacked"></i>Inventário (Pós-Venda)</h4>
+                        <ul class="list-disc list-outside ml-5 space-y-2">
+                            <li>Produtos Acabados: <strong>7 sacos</strong> restantes.</li>
+                            <li>Matérias-Primas:
+                                <span class="flex items-center gap-1.5 text-[var(--text-critical)] font-medium">
+                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                    Trigo e Milho sem stock. Outros em níveis baixos.
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="note-box critical">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-ban text-[var(--text-critical)] text-lg"></i>
+                            <p class="font-semibold text-[var(--text-primary)]">Impossibilidade de produzir mais devido à rutura de stock de Trigo e Milho.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="day-section active-day">
+                <div class="flex flex-wrap justify-between items-center gap-2 mb-4">
+                    <h3 class="text-xl font-medium">Quarta-feira, 7 de Maio</h3>
+                    <span class="bg-emerald-100 text-xs px-3 py-1 rounded-full text-emerald-700 font-medium icon-text-center"><i class="fa-solid fa-check"></i>Dia Ativo</span>
+                </div>
+                <div class="glass-card space-y-5">
+                    <div class="ops-section">
+                        <h4><i class="fa-solid fa-industry"></i>Produção</h4>
+                        <p>Não houve produção (falta de matéria-prima).</p>
+                    </div>
+                    <div class="ops-section">
+                        <h4><i class="fa-solid fa-cash-register"></i>Vendas</h4>
+                        <div class="bg-slate-100 border border-slate-200 rounded-lg p-4 my-3">
+                            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                                <div class="icon-text-center text-[var(--text-secondary)]">
+                                    <i class="fa-solid fa-user text-sky-500"></i>
+                                    <span>Sr. Belarmino Buco (cash)</span>
+                                </div>
+                                <span class="currency text-sky-600 font-semibold text-lg"><span class="currency-value">19.650,00</span></span>
+                            </div>
+                            <div class="grid grid-cols-1 text-sm">
+                                <div class="flex items-center justify-between bg-slate-200/70 p-2 rounded">
+                                    <span class="text-sky-600">1 saco A103</span>
+                                    <span class="text-xs currency text-sky-500/80"><span class="currency-value">19.650,00</span></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="inline-block bg-gradient-to-r from-sky-500 to-cyan-500 px-4 py-1.5 rounded-md shadow">
+                                <span class="text-sm font-medium text-white">Receita do Dia: </span>
+                                <span class="currency font-semibold text-white"><span class="currency-value">19.650,00</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ops-section">
+                        <h4><i class="fa-solid fa-boxes-stacked"></i>Inventário (Pós-Venda)</h4>
+                        <p>Produtos Acabados: <strong>6 sacos</strong> restantes (Estimativa).</p>
+                        <p class="text-xs text-[var(--text-muted)] mt-2 italic">Nota: O relatório final da semana indicou 7 sacos. A contagem de Quarta pode ter sido preliminar ou a produção de Terça rendeu 1 saco extra não contabilizado inicialmente.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="day-section no-activity">
+                <div class="flex flex-wrap justify-between items-center gap-2 mb-4">
+                    <h3 class="text-xl font-medium">Quinta-feira, 8 de Maio</h3>
+                    <span class="bg-slate-200 text-xs px-3 py-1 rounded-full text-slate-600 font-medium">Dia 4 - Sem Atividade Principal</span>
+                </div>
+                <div class="glass-card space-y-5">
+                    <div class="ops-section">
+                        <h4><i class="fa-solid fa-industry"></i>Produção</h4>
+                        <p>Não houve produção.</p>
+                    </div>
+                    <div class="ops-section">
+                        <h4><i class="fa-solid fa-cash-register"></i>Vendas</h4>
+                        <p>Sem vendas reportadas (<span class="currency"><span class="currency-value">0,00</span></span>).</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="day-section no-activity">
+                <div class="flex flex-wrap justify-between items-center gap-2 mb-4">
+                    <h3 class="text-xl font-medium">Sexta-feira, 9 de Maio</h3>
+                    <span class="bg-slate-200 text-xs px-3 py-1 rounded-full text-slate-600 font-medium">Dia 5 - Sem Atividade Principal</span>
+                </div>
+                <div class="glass-card space-y-5">
+                    <div class="ops-section">
+                        <h4><i class="fa-solid fa-industry"></i>Produção</h4>
+                        <p>Não houve produção.</p>
+                    </div>
+                    <div class="ops-section">
+                        <h4><i class="fa-solid fa-cash-register"></i>Vendas</h4>
+                        <p>Sem vendas reportadas (<span class="currency"><span class="currency-value">0,00</span></span>).</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-10">
+            <div class="flex items-center gap-3 mb-6">
+                <i class="fa-solid fa-clipboard-check text-[var(--accent-primary)] text-2xl w-6 text-center"></i>
+                <h2 class="text-2xl font-semibold text-[var(--text-primary)]">Observações e Recomendações Finais</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="glass-card">
+                    <div class="flex items-center gap-3 mb-5">
+                        <div class="bg-sky-100 p-2.5 rounded-lg border border-sky-200">
+                            <i class="fa-solid fa-magnifying-glass text-sky-500 text-lg"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-[var(--text-accent)]">Observações Principais</h3>
+                    </div>
+                    <ul class="space-y-3 text-[var(--text-secondary)]">
+                        <li class="flex items-start gap-3">
+                            <i class="fa-solid fa-circle text-xs text-[var(--text-critical)] mt-1.5 flex-shrink-0"></i>
+                            <span><strong class="text-[var(--text-primary)]">Ruptura de stock</strong> de Trigo e Milho paralisou a produção na maior parte da semana.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa-solid fa-circle text-xs text-[var(--text-warning)] mt-1.5 flex-shrink-0"></i>
+                            <span>Receita <strong class="text-[var(--text-primary)]">concentrada em apenas 2 dias</strong>, dependente de uma encomenda maior.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa-solid fa-circle text-xs text-[var(--text-warning)] mt-1.5 flex-shrink-0"></i>
+                            <span>Níveis <strong class="text-[var(--text-primary)]">baixos</strong> de outras matérias-primas e do produto acabado (< 10 sacos).</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa-solid fa-circle text-xs text-[var(--text-success)] mt-1.5 flex-shrink-0"></i>
+                            <span>Atividade operacional (capina) concluída.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa-solid fa-circle text-xs text-[var(--text-warning)] mt-1.5 flex-shrink-0"></i>
+                            <span>Problema do <strong class="text-[var(--text-primary)]">abastecimento de água</strong> persiste como um risco operacional.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="glass-card">
+                    <div class="flex items-center gap-3 mb-5">
+                        <div class="bg-amber-100 p-2.5 rounded-lg border border-amber-200">
+                            <i class="fa-solid fa-lightbulb text-amber-500 text-lg"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-[var(--text-accent)]">Recomendações Urgentes</h3>
+                    </div>
+                    <ul class="space-y-3 text-[var(--text-secondary)]">
+                        <li class="flex items-start gap-3">
+                            <div class="flex justify-center items-center bg-red-100 h-6 w-6 rounded-full mr-1 flex-shrink-0 mt-0.5 ring-1 ring-red-200">
+                                <i class="fa-solid fa-truck-fast text-xs text-[var(--text-critical)]"></i>
+                            </div>
+                            <span><strong class="text-[var(--text-critical)]">Adquirir Trigo e Milho imediatamente</strong> para retomar a produção.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="flex justify-center items-center bg-amber-100 h-6 w-6 rounded-full mr-1 flex-shrink-0 mt-0.5 ring-1 ring-amber-200">
+                                <i class="fa-solid fa-boxes-packing text-xs text-[var(--text-warning)]"></i>
+                            </div>
+                            <span>Planear <strong class="text-[var(--text-primary)]">reposição urgente</strong> das restantes matérias-primas (Farelo, Soja, Cálcio, Concentrado).</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="flex justify-center items-center bg-amber-100 h-6 w-6 rounded-full mr-1 flex-shrink-0 mt-0.5 ring-1 ring-amber-200">
+                                <i class="fa-solid fa-faucet text-xs text-[var(--text-warning)]"></i>
+                            </div>
+                            <span>Resolver o problema do <strong class="text-[var(--text-primary)]">abastecimento de água</strong> com prioridade.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="flex justify-center items-center bg-sky-100 h-6 w-6 rounded-full mr-1 flex-shrink-0 mt-0.5 ring-1 ring-sky-200">
+                                <i class="fa-solid fa-bell-concierge text-xs text-[var(--text-accent)]"></i>
+                            </div>
+                            <span>Implementar sistema de <strong class="text-[var(--text-primary)]">alerta de stock mínimo</strong> para matérias-primas críticas.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="flex justify-center items-center bg-sky-100 h-6 w-6 rounded-full mr-1 flex-shrink-0 mt-0.5 ring-1 ring-sky-200">
+                                <i class="fa-solid fa-chart-pie text-xs text-[var(--text-accent)]"></i>
+                            </div>
+                            <span>Avaliar estratégias para <strong class="text-[var(--text-primary)]">diversificar fontes de receita</strong> e clientes.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <footer class="mt-16 pt-8 border-t border-[var(--section-border)]">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="text-center md:text-left text-xs text-[var(--text-muted)] space-y-1">
+                    <p class="icon-text-center">
+                        <i class="fa-solid fa-user-pen mr-1.5"></i>
+                        <span>Relatório compilado por:Almeida José</span>
+                    </p>
+                    <p class="icon-text-center">
+                        <i class="fa-solid fa-calendar-check mr-1.5"></i>
+                        <span>Data Compilação: 10 de Maio, 2025 (Ref. semana 5-9 Maio)</span>
+                    </p>
+                </div>
+                <div>
+                    <img src="https://grupoysam.com/wp-content/uploads/2025/05/cab-racao-1.webp"
+                         alt="Logótipo Cab-Ração"
+                         class="h-10 opacity-70"
+                         onerror="this.onerror=null; this.src='https://placehold.co/130x40/e2e8f0/64748b?text=Cab-Ração&font=montserrat';">
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Chart.register(ChartDataLabels);
+
+            // --- Configuration for Light Theme ---
+            const chartColors = {
+                primary: 'rgba(14, 165, 233, 0.8)',    // sky-500 (from --accent-primary)
+                primaryHover: 'rgba(14, 165, 233, 1)',
+                secondary: 'rgba(245, 158, 11, 0.8)',  // amber-500 (from --accent-secondary)
+                secondaryHover: 'rgba(245, 158, 11, 1)',
+                text: '#475569',                       // slate-600 (from --text-secondary)
+                grid: 'rgba(203, 213, 225, 0.5)',      // slate-300 (from --chart-grid)
+                tooltipBg: 'rgba(255, 255, 255, 0.95)',// Light background for tooltip
+                tooltipBorder: 'rgba(226, 232, 240, 0.8)' // slate-200 for tooltip border
+            };
+
+            const prices = { 'A101': 21470.00, 'A103': 19650.00 };
+
+            const salesLog = [
+                { day: 'Seg', units: 0, revenue: 0 },
+                { day: 'Ter', units: 20, revenue: (10 * prices['A101']) + (10 * prices['A103']) },
+                { day: 'Qua', units: 1, revenue: 1 * prices['A103'] },
+                { day: 'Qui', units: 0, revenue: 0 },
+                { day: 'Sex', units: 0, revenue: 0 }
+            ];
+
+            const productSalesData = {
+                labels: ['A103', 'A101'],
+                units: [11, 10]
+            };
+
+            // --- Calculations ---
+            const totalRevenue = salesLog.reduce((sum, item) => sum + item.revenue, 0);
+            const totalUnitsSold = salesLog.reduce((sum, item) => sum + item.units, 0);
+
+            // --- Helper Functions ---
+            const formatCurrency = (value) => {
+                return new Intl.NumberFormat('pt-PT', {
+                    style: 'currency',
+                    currency: 'AOA',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(value).replace('AOA', '').trim();
+            };
+
+            const updateMetrics = () => {
+                const revenueEl = document.getElementById('totalRevenue');
+                const unitsEl = document.getElementById('totalUnitsSold');
+                if (revenueEl) revenueEl.textContent = formatCurrency(totalRevenue);
+                if (unitsEl) unitsEl.textContent = totalUnitsSold;
+            };
+
+            // --- Chart Defaults and Options ---
+            const commonChartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false,
+                        labels: {
+                            color: chartColors.text, // Updated for light theme
+                            font: { family: "'Inter', sans-serif", size: 12 },
+                            padding: 15,
+                            usePointStyle: true,
+                            pointStyle: 'rectRounded'
+                        }
+                    },
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: chartColors.tooltipBg, // Updated
+                        titleColor: chartColors.text,          // Updated
+                        bodyColor: chartColors.text,           // Updated
+                        borderColor: chartColors.tooltipBorder,  // Updated
+                        borderWidth: 1,
+                        padding: 12,
+                        cornerRadius: 8,
+                        displayColors: true,
+                        boxPadding: 4,
+                        titleFont: { family: "'Montserrat', sans-serif", weight: 'bold', size: 13 },
+                        bodyFont: { family: "'Inter', sans-serif", size: 12 },
+                        callbacks: {
+                            label: (context) => `${context.dataset.label || ''}: ${context.formattedValue}`
+                        }
+                    },
+                    datalabels: { // Default datalabel settings
+                        color: '#1e293b', // Dark color for labels on light bars/segments (slate-800)
+                        font: { weight: 'bold', size: 11, family: "'Inter', sans-serif" },
+                        anchor: 'end',
+                        align: 'top',
+                        offset: -4,
+                        formatter: (value) => (value > 0 ? value : '')
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: chartColors.grid, // Updated
+                            borderColor: 'transparent',
+                            drawBorder: false,
+                            zeroLineColor: chartColors.grid // Updated
+                        },
+                        ticks: {
+                            color: chartColors.text, // Updated
+                            font: { family: "'Inter', sans-serif", size: 11 },
+                            padding: 8,
+                            callback: (value) => {
+                                if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
+                                if (value >= 1000) return (value / 1000).toFixed(0) + 'K';
+                                return value;
+                            }
+                        }
+                    },
+                    x: {
+                        grid: { display: false, drawBorder: false },
+                        ticks: {
+                            color: chartColors.text, // Updated
+                            font: { family: "'Inter', sans-serif", size: 11 },
+                            padding: 8
+                        }
+                    }
+                },
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                animation: {
+                    duration: 800,
+                    easing: 'easeOutQuart'
+                }
+            };
+
+            // --- Initialize Daily Revenue Chart (Bar Chart) ---
+            const dailyRevenueCtx = document.getElementById('dailyRevenueChart')?.getContext('2d');
+            if (dailyRevenueCtx) {
+                const barGradient = dailyRevenueCtx.createLinearGradient(0, 0, 0, 350);
+                barGradient.addColorStop(0, chartColors.primary);
+                barGradient.addColorStop(1, 'rgba(14, 165, 233, 0.4)'); // Lighter end for gradient
+
+                new Chart(dailyRevenueCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: salesLog.map(item => item.day),
+                        datasets: [{
+                            label: 'Receita Diária',
+                            data: salesLog.map(item => item.revenue),
+                            backgroundColor: barGradient,
+                            borderColor: chartColors.primaryHover,
+                            borderWidth: 1,
+                            borderRadius: 5,
+                            hoverBackgroundColor: chartColors.primaryHover,
+                            barPercentage: 0.7,
+                            categoryPercentage: 0.8
+                        }]
+                    },
+                    options: {
+                        ...commonChartOptions,
+                        plugins: {
+                            ...commonChartOptions.plugins,
+                            tooltip: {
+                                ...commonChartOptions.plugins.tooltip,
+                                callbacks: {
+                                    label: (context) => `Receita: AOA ${formatCurrency(context.parsed.y)}`
+                                }
+                            },
+                            datalabels: {
+                                ...commonChartOptions.plugins.datalabels,
+                                formatter: (value) => {
+                                    if (value === 0) return '';
+                                    if (value >= 100000) return 'AOA ' + (value / 1000).toFixed(0) + 'K';
+                                    return 'AOA ' + formatCurrency(value);
+                                },
+                                color: '#334155', // slate-700 for better visibility on bars
+                                anchor: 'end',
+                                align: 'top',
+                                offset: -5
+                            }
+                        }
+                    }
+                });
+            }
+
+            // --- Initialize Product Sales Chart (Doughnut Chart) ---
+            const productSalesCtx = document.getElementById('productSalesChart')?.getContext('2d');
+            if (productSalesCtx) {
+                new Chart(productSalesCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: productSalesData.labels,
+                        datasets: [{
+                            data: productSalesData.units,
+                            backgroundColor: [chartColors.primary, chartColors.secondary],
+                            hoverBackgroundColor: [chartColors.primaryHover, chartColors.secondaryHover],
+                            borderColor: 'rgba(255, 255, 255, 0.9)', // Light border to blend with card
+                            borderWidth: 3,
+                            hoverOffset: 8
+                        }]
+                    },
+                    options: {
+                        ...commonChartOptions,
+                        cutout: '65%',
+                        plugins: {
+                            ...commonChartOptions.plugins,
+                            legend: {
+                                display: true,
+                                position: 'bottom',
+                                labels: {
+                                    ...commonChartOptions.plugins.legend.labels,
+                                    padding: 25
+                                }
+                            },
+                            tooltip: {
+                                ...commonChartOptions.plugins.tooltip,
+                                callbacks: {
+                                    label: (context) => {
+                                        const label = context.label || '';
+                                        const value = context.parsed || 0;
+                                        const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                        const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                                        return `${label}: ${value} sacos (${percentage}%)`;
+                                    }
+                                }
+                            },
+                            datalabels: { // Datalabels for doughnut
+                                ...commonChartOptions.plugins.datalabels,
+                                formatter: (value, context) => {
+                                    const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                                    return `${percentage}%`;
+                                },
+                                anchor: 'center',
+                                align: 'center',
+                                color: '#ffffff', // White text on colored segments
+                                textShadowColor: 'rgba(0, 0, 0, 0.3)', // Softer shadow for light theme
+                                textShadowBlur: 3
+                            }
+                        }
+                    }
+                });
+            }
+
+            updateMetrics();
+        });
+    </script>
+</body>
+</html>
